@@ -23,7 +23,7 @@ const CUSTOM_GRAD_SLIDE_LAYOUT = 'g511f3991ce_0_612';
 function GET_PLACEHOLDERS() {
     const layouts = SlidesApp.openById(TEMPLATE_PRESENTATION_ID).getLayouts();
     Logger.log(layouts.map(function (layout) {
-        return layout.getLayoutNAME() + ': ' + layout.getObjectId();
+        return layout.getLayoutName() + ': ' + layout.getObjectId();
     }).join('\n'));
 
     const layout = layouts.filter(function (layout) {
