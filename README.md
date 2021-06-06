@@ -23,7 +23,6 @@ The original spreadsheet data and slides template are not altered.
     `CUSTOM_GRAD_SLIDE_LAYOUT` appropriately.
     1. Grant authorization to the script when prompted.
     1. Run the `GENERATE()` function.
-    1. Run the `UNSHARE()` function to maintain file security.
 1. The generated Google Slides banquet slideshow is outputted to your Google
 Drive root folder.
 

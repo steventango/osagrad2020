@@ -22,7 +22,7 @@ const CUSTOM_GRAD_SLIDE_LAYOUT = 'g511f3991ce_0_612';
 
 function GET_PLACEHOLDERS() {
     const layouts = SlidesApp.openById(TEMPLATE_PRESENTATION_ID).getLayouts();
-    Logger.log(layouts.map(function (layout) {
+    console.log(layouts.map(function (layout) {
         return layout.getLayoutName() + ': ' + layout.getObjectId();
     }).join('\n'));
 
@@ -33,12 +33,13 @@ function GET_PLACEHOLDERS() {
     const placeholders = layout.getPlaceholders().map(function (placeholder) {
         placeholder.getTitle();
     }).join();
-    Logger.log(placeholders);
+    console.log(placeholders);
 
-    Logger.log(layout.getShapes()[1].getObjectId());
+    console.log(layout.getShapes()[1].getObjectId());
 }
 
 function GENERATE() {
+    try {
     // ARRAY of REQUESTS to be made to Slides API
     const REQUESTS = [];
 
@@ -93,9 +94,9 @@ function GENERATE() {
             const BABY_PHOTO_FILE = DriveApp.getFileById(BABY_PHOTO_URL.match(/[-\w]{25,}/));
             const BABY_PHOTO_FILE_TYPE = BABY_PHOTO_FILE.getMimeType();
             if (['image/jpeg', 'image/png'].indexOf(BABY_PHOTO_FILE_TYPE) < 0) {
-                Logger.log('Invalid baby photo file type: ' + BABY_PHOTO_FILE_TYPE + ' | URL: ' + BABY_PHOTO_URL);
+                console.log('Invalid baby photo file type: ' + BABY_PHOTO_FILE_TYPE + ' | URL: ' + BABY_PHOTO_URL);
             } else if (BABY_PHOTO_FILE.getSize() > 10e6) {
-                Logger.log('Baby photo file size larger than 10 MB: ' + ' | URL: ' + BABY_PHOTO_URL);
+                console.log('Baby photo file size larger than 10 MB: ' + ' | URL: ' + BABY_PHOTO_URL);
             } else {
                 // temporarily set sharing to DriveApp.Access.ANYONE_WITH_LINK
                 BABY_PHOTO_FILE.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
@@ -206,16 +207,16 @@ function GENERATE() {
             const GRAD_PHOTOS = DriveApp.searchFiles("'" + GRAD_PHOTOS_FOLDER_ID + "' in parents and title contains '" + LAST_NAME.toLowerCase() + '_' + FIRST_NAME.toLowerCase() + "' and (mimeType contains 'image/jpeg' or mimeType contains 'image/png')");
 
             if (GRAD_PHOTOS.length > 1) {
-                Logger.log('MULTIPLE GRAD PHOTOS: #GRAD_SLIDE' + i);
+                console.log('MULTIPLE GRAD PHOTOS: #GRAD_SLIDE' + i);
             } else if (GRAD_PHOTOS.length < 1) {
-                Logger.log('NO GRAD PHOTO: #GRAD_SLIDE' + i);
+                console.log('NO GRAD PHOTO: #GRAD_SLIDE' + i);
             } else {
                 if (GRAD_PHOTOS) {
                     while (GRAD_PHOTOS.hasNext()) {
                         GRAD_PHOTO_FILE = GRAD_PHOTOS.next();
                         if (GRAD_PHOTO_FILE.getSize() > 1e6) {
                             // Files larger than 1 MB need to be uploaded manually.
-                            Logger.log('Grad photo file size larger than 1 MB: ' + GRAD_PHOTO_FILE.getname());
+                            console.log('Grad photo file size larger than 1 MB: ' + GRAD_PHOTO_FILE.getname());
                         } else {
                             // temporarily set sharing to DriveApp.Access.DOMAIN_WITH_LINK
                             GRAD_PHOTO_FILE.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);
@@ -250,6 +251,11 @@ function GENERATE() {
     Slides.Presentations.batchUpdate({
         requests: REQUESTS
     }, PRESENTATION_COPY.id);
+    } catch (error) {
+        console.error(error)
+    } finally {
+        UNSHARE();
+    }
 }
 
 function UNSHARE() {
