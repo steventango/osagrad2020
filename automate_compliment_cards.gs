@@ -39,7 +39,9 @@ function GENERATE() {
 
     let ROWS = SHEET
         .getDataRange()
-        .getValues();
+        .getValues()
+        // ignore first row
+        .slice(1);
 
     // sort rows by last name then by first name
     ROWS.sort(function (a, b) {

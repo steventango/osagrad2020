@@ -5,10 +5,10 @@ const SHEET_NAME = 'Form Responses 1';
 
 // configure column mapping
 const DATA_SPREADSHEET_COLUMNS = {
-    'LAST_NAME': 2, //COLUMN C
-    'FIRST_NAME': 3, //COLUMN D
-    'QUOTE': 4, //COLUMN E
-    'BABY_PHOTO_URL': 5 //COLUMN F
+    'LAST_NAME': 2, // COLUMN C
+    'FIRST_NAME': 3, // COLUMN D
+    'QUOTE': 4, // COLUMN E
+    'BABY_PHOTO_URL': 5 // COLUMN F
 };
 
 // retrieve grad photos folder id from url
@@ -49,6 +49,8 @@ function GENERATE() {
     let ROWS = SHEET
         .getDataRange()
         .getValues()
+        // ignore first row
+        .slice(1)
         .filter(function (ROW) {
             return ROW[DATA_SPREADSHEET_COLUMNS['LAST_NAME']].length > 0;
         });
