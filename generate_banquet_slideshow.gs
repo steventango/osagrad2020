@@ -1,26 +1,37 @@
-// RETRIEVE FILE IDs FROM URL AND PASTE HERE.
-const DATA_SPREADSHEET_ID = '[REDACTED]';
+// retrieve spreadsheet file id from url
+// https://docs.google.com/spreadsheets/d/<SPREADSHEET FILE ID>/edit
+const DATA_SPREADSHEET_ID = '<SPREADSHEET FILE ID>';
+const SHEET_NAME = 'Form Responses 1';
+
+// configure column mapping
 const DATA_SPREADSHEET_COLUMNS = {
     'LAST_NAME': 2, //COLUMN C
     'FIRST_NAME': 3, //COLUMN D
     'QUOTE': 4, //COLUMN E
     'BABY_PHOTO_URL': 5 //COLUMN F
-}
-const TEMPLATE_PRESENTATION_ID = '[REDACTED]';
-const GRAD_PHOTOS_FOLDER_ID = null;
+};
+
+// retrieve grad photos folder id from url
+// https://drive.google.com/drive/u/0/folders/<GRAD PHOTOTS FOLDER ID>
+const GRAD_PHOTOS_FOLDER_ID = '<GRAD PHOTOTS FOLDER ID>';
+
+// retrieve template slides file id from url
+// https://docs.google.com/presentation/d/<TEMPLATE SLIDES FILE ID>/edit
+const TEMPLATE_PRESENTATION_ID = '<TEMPLATE SLIDES FILE ID>';
 const CUSTOM_GRAD_SLIDE_LAYOUT = 'g511f3991ce_0_612';
 
 function GET_PLACEHOLDERS() {
-    var layouts = SlidesApp.openById(TEMPLATE_PRESENTATION_ID).getLayouts();
-    Logger.log(layouts.map(function(layout) {
-        return layout.getLayoutNAME() + '|' + layout.getObjectId()
+    const layouts = SlidesApp.openById(TEMPLATE_PRESENTATION_ID).getLayouts();
+    Logger.log(layouts.map(function (layout) {
+        return layout.getLayoutNAME() + ': ' + layout.getObjectId();
     }).join('\n'));
 
-    var layout = layouts.filter(function(layout) {
-        return layout.getObjectId() == 'g511f3991ce_0_612' ? 1 : 0
+    const layout = layouts.filter(function (layout) {
+        return layout.getObjectId() == 'g511f3991ce_0_612' ? 1 : 0;
     })[0];
-    var placeholders = layout.getPlaceholders().map(function(placeholder) {
-        placeholder.getTitle()
+
+    const placeholders = layout.getPlaceholders().map(function (placeholder) {
+        placeholder.getTitle();
     }).join();
     Logger.log(placeholders);
 
@@ -31,17 +42,23 @@ function GENERATE() {
     // ARRAY of REQUESTS to be made to Slides API
     const REQUESTS = [];
 
-    // LOAD ROWS from Sheets API
-    const ROWS = SpreadsheetApp.openById(DATA_SPREADSHEET_ID).getRange('Form Responses 1!A2:F120')
+    // load data from Sheets API
+    const SPREADSHEET = SpreadsheetApp.openById(DATA_SPREADSHEET_ID);
+    const SHEET = SPREADSHEET.getSheetByName(SHEET_NAME);
+
+    let ROWS = SHEET
+        .getDataRange()
         .getValues()
-        .filter(function(ROW) {
-            return ROW[DATA_SPREADSHEET_COLUMNS['LAST_NAME']].length > 0
+        .filter(function (ROW) {
+            return ROW[DATA_SPREADSHEET_COLUMNS['LAST_NAME']].length > 0;
         });
 
-    //SORT ROWS BY LAST_NAME THEN BY FIRST_NAME
-    ROWS.sort(function(a, b) {
-        var A_NAME = (a[DATA_SPREADSHEET_COLUMNS['LAST_NAME']] + "\n" + a[DATA_SPREADSHEET_COLUMNS['FIRST_NAME']]).toUpperCase();
-        var B_NAME = (b[DATA_SPREADSHEET_COLUMNS['LAST_NAME']] + "\n" + b[DATA_SPREADSHEET_COLUMNS['FIRST_NAME']]).toUpperCase();
+    // sort rows by last name then by first name
+    ROWS.sort(function (a, b) {
+        const [A_FIRST, A_LAST] = rsplit(a[DATA_SPREADSHEET_COLUMNS['TO']]);
+        const A_NAME = (A_LAST + "\n" + A_FIRST);
+        const [B_FIRST, B_LAST] = rsplit(b[DATA_SPREADSHEET_COLUMNS['TO']]);
+        const B_NAME = (B_LAST + "\n" + B_FIRST);
         if (A_NAME < B_NAME) {
             return -1;
         }
@@ -51,7 +68,7 @@ function GENERATE() {
         return 0;
     });
 
-    for (var i = 0; i < ROWS.length; i++) {
+    for (let i = 0; i < ROWS.length; i++) {
         const ROW = ROWS[i];
         const LAST_NAME = ROW[DATA_SPREADSHEET_COLUMNS['LAST_NAME']];
         const FIRST_NAME = ROW[DATA_SPREADSHEET_COLUMNS['FIRST_NAME']];
@@ -59,7 +76,7 @@ function GENERATE() {
         const QUOTE = ROW[DATA_SPREADSHEET_COLUMNS['QUOTE']];
         const BABY_PHOTO_URL = ROW[DATA_SPREADSHEET_COLUMNS['BABY_PHOTO_URL']];
 
-        //CREATE BABY_SLIDE
+        // create baby slide
         REQUESTS.push({
             createSlide: {
                 objectId: 'BABY_SLIDE' + i,
@@ -69,7 +86,7 @@ function GENERATE() {
             }
         });
 
-        //INSERT BABY_PHOTO ON BABY_SLIDE
+        // insert baby photo url on baby slide
         if (BABY_PHOTO_URL) {
             const BABY_PHOTO_FILE = DriveApp.getFileById(BABY_PHOTO_URL.match(/[-\w]{25,}/));
             const BABY_PHOTO_FILE_TYPE = BABY_PHOTO_FILE.getMimeType();
@@ -78,7 +95,7 @@ function GENERATE() {
             } else if (BABY_PHOTO_FILE.getSize() > 10e6) {
                 Logger.log('Baby photo file size larger than 10 MB: ' + ' | URL: ' + BABY_PHOTO_URL);
             } else {
-                // TEMPORARILY SET SHARING to DriveApp.Access.ANYONE_WITH_LINK
+                // temporarily set sharing to DriveApp.Access.ANYONE_WITH_LINK
                 BABY_PHOTO_FILE.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
                 REQUESTS.push({
                     createImage: {
@@ -108,7 +125,7 @@ function GENERATE() {
             }
         }
 
-        // CREATE GRAD_SLIDE
+        // create grad slide
         REQUESTS.push({
             createSlide: {
                 objectId: 'GRAD_SLIDE' + i,
@@ -116,24 +133,23 @@ function GENERATE() {
                     layoutId: CUSTOM_GRAD_SLIDE_LAYOUT
                 },
                 placeholderIdMappings: [{
-                        layoutPlaceholder: {
-                            "type": "TITLE",
-                            "index": 0
-                        },
-                        "objectId": 'NAME' + i,
+                    layoutPlaceholder: {
+                        "type": "TITLE",
+                        "index": 0
                     },
-                    {
-                        layoutPlaceholder: {
-                            "type": "SUBTITLE",
-                            "index": 0
-                        },
-                        "objectId": 'QUOTE' + i,
+                    "objectId": 'NAME' + i,
+                },
+                {
+                    layoutPlaceholder: {
+                        "type": "SUBTITLE",
+                        "index": 0
                     },
+                    "objectId": 'QUOTE' + i,
+                },
                 ],
             }
         });
 
-        // INSERT NAME ON GRAD_SLIDE
         REQUESTS.push({
             insertText: {
                 objectId: 'NAME' + i,
@@ -141,7 +157,6 @@ function GENERATE() {
             }
         });
 
-        //INSERT QUOTE ON GRAD_SLIDE
         REQUESTS.push({
             insertText: {
                 objectId: 'QUOTE' + i,
@@ -149,7 +164,6 @@ function GENERATE() {
             }
         });
 
-        //CREATE GRAD_PHOTO_TEMPLATE_OBJECT
         REQUESTS.push({
             createShape: {
                 objectId: 'GRAD_PHOTO_TEMPLATE_OBJECT_' + i,
@@ -176,6 +190,7 @@ function GENERATE() {
                 shapeType: 'RECTANGLE'
             }
         });
+
         REQUESTS.push({
             insertText: {
                 objectId: 'GRAD_PHOTO_TEMPLATE_OBJECT_' + i,
@@ -183,15 +198,15 @@ function GENERATE() {
             }
         });
 
-        // INSERT GRAD PHOTO
+        // insert grad photo
         if (GRAD_PHOTOS_FOLDER_ID) {
-            var GRAD_PHOTO_FILE;
-            var GRAD_PHOTOS = DriveApp.searchFiles("'" + GRAD_PHOTOS_FOLDER_ID + "' in parents and title contains '" + LAST_NAME.toLowerCase() + '_' + FIRST_NAME.toLowerCase() + "' and (mimeType contains 'image/jpeg' or mimeType contains 'image/png')");
+            let GRAD_PHOTO_FILE;
+            const GRAD_PHOTOS = DriveApp.searchFiles("'" + GRAD_PHOTOS_FOLDER_ID + "' in parents and title contains '" + LAST_NAME.toLowerCase() + '_' + FIRST_NAME.toLowerCase() + "' and (mimeType contains 'image/jpeg' or mimeType contains 'image/png')");
 
             if (GRAD_PHOTOS.length > 1) {
-                Logger.log('MULTIPLE GRAD PHOTOS: #GRAD_SLIDE' + i)
+                Logger.log('MULTIPLE GRAD PHOTOS: #GRAD_SLIDE' + i);
             } else if (GRAD_PHOTOS.length < 1) {
-                Logger.log('NO GRAD PHOTO: #GRAD_SLIDE' + i)
+                Logger.log('NO GRAD PHOTO: #GRAD_SLIDE' + i);
             } else {
                 if (GRAD_PHOTOS) {
                     while (GRAD_PHOTOS.hasNext()) {
@@ -200,8 +215,8 @@ function GENERATE() {
                             // Files larger than 1 MB need to be uploaded manually.
                             Logger.log('Grad photo file size larger than 1 MB: ' + GRAD_PHOTO_FILE.getname());
                         } else {
-                            // TEMPORARILY SET SHARING to DriveApp.Access.DOMAIN_WITH_LINK
-                            GRAD_PHOTO_FILE.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW)
+                            // temporarily set sharing to DriveApp.Access.DOMAIN_WITH_LINK
+                            GRAD_PHOTO_FILE.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);
                             REQUESTS.push({
                                 replaceAllShapesWithImage: {
                                     imageUrl: "https://drive.google.com/uc?export=download&id=" + GRAD_PHOTO_FILE.getId(),
@@ -221,7 +236,7 @@ function GENERATE() {
         }
     }
 
-    // DUPLICATE TEMPLATE_PRESENTATION to PRESENTATION_COPY with Drive API.
+    // duplicate template presentation with Drive API.
     const PRESENTATION_COPY = Drive.Files.copy({
         title: '6.1.03 Automated Banquet Slideshow',
         parents: [{
@@ -229,24 +244,33 @@ function GENERATE() {
         }]
     }, TEMPLATE_PRESENTATION_ID);
 
-    // EXECUTE the REQUESTS on PRESENTATION_COPY
+    // execute the requests on the copied presentation
     Slides.Presentations.batchUpdate({
         requests: REQUESTS
     }, PRESENTATION_COPY.id);
 }
 
 function UNSHARE() {
-    const ROWS = SpreadsheetApp.openById(DATA_SPREADSHEET_ID).getRange('Form Responses 1!A2:F120').getValues();
-    for (var i = 0; i < ROWS.length; i++) {
+    const SPREADSHEET = SpreadsheetApp.openById(DATA_SPREADSHEET_ID);
+    const SHEET = SPREADSHEET.getSheetByName(SHEET_NAME);
+
+    let ROWS = SHEET
+        .getDataRange()
+        .getValues();
+
+    // unshare baby photos
+    for (let i = 0; i < ROWS.length; i++) {
         const ROW = ROWS[i];
         const BABY_PHOTO_URL = ROW[DATA_SPREADSHEET_COLUMNS['BABY_PHOTO_URL']];
         if (BABY_PHOTO_URL) {
             const BABY_PHOTO_FILE = DriveApp.getFileById(BABY_PHOTO_URL.match(/[-\w]{25,}/));
             BABY_PHOTO_FILE.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.NONE);
         }
-        const GRAD_PHOTOS = DriveApp.getFolderById(GRAD_PHOTOS_FOLDER_ID).getFiles();
-        while (GRAD_PHOTOS.hasNext()) {
-            GRAD_PHOTOS.next().setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);;
-        }
+    }
+
+    // unshare grad photos
+    const GRAD_PHOTOS = DriveApp.getFolderById(GRAD_PHOTOS_FOLDER_ID).getFiles();
+    while (GRAD_PHOTOS.hasNext()) {
+        GRAD_PHOTOS.next().setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW);
     }
 }
