@@ -13,7 +13,8 @@ from our Google Form spreadsheet data using a Google Slides template. The origin
             1. Title placeholders are used for `Name`
             1. Subtitle placeholders are used for `Quote`
 1. Edit `generate_banquet_slideshow.gs`
-    1. Replace `<SPREADSHEET FILE ID>`, `<GRAD PHOTOTS FOLDER ID>` and `<TEMPLATE SLIDES FILE ID>` with the file ids respectively.
+    1. Replace `<SPREADSHEET FILE ID>` and `<TEMPLATE SLIDES FILE ID>` with the file ids respectively.
+    1. Replace `<GRAD PHOTOTS FOLDER ID>` with the folder id or null if there are no photos.
     1. Update `SHEET_NAME` and `DATA_SPREADSHEET_COLUMNS` as appropriate.
     1. Run the `GET_PLACEHOLDERS()` function and update the `CUSTOM_GRAD_SLIDE_LAYOUT` appropriately.
     1. Grant authorization to the script when prompted.
