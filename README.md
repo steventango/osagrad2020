@@ -31,8 +31,8 @@ template. The original spreadsheet data and slides template are not altered.
 1. Create a Google Slide to be used as the template.
     1. Create at least one layout in `View > Theme Builder`
         1. Insert Placeholders via `Insert > Placeholder`
-            1. Title placeholders are used for `From:`
-            1. Subtitle placeholders are used for `To:`
+            1. Title placeholders are used for `From`
+            1. Subtitle placeholders are used for `To`
             1. Body placeholders are used for `Message`
 1. Edit `automate_compliment_cards.gs`
     1. Replace `<SPREADSHEET FILE ID>` and `<TEMPLATE SLIDES FILE ID>` with the file ids respectively.
