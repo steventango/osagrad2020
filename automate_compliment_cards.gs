@@ -24,7 +24,7 @@ const LAYOUT_IDS = [
 
 function GET_LAYOUTS() {
     const layouts = SlidesApp.openById(TEMPLATE_PRESENTATION_ID).getLayouts();
-    Logger.log(layouts.map(function (layout) {
+    console.log(layouts.map(function (layout) {
         return layout.getLayoutName() + ': ' + layout.getObjectId();
     }).join('\n'));
 }
