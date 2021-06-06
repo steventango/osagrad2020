@@ -16,20 +16,20 @@ from our Google Form spreadsheet data using a Google Slides template.
 
 ## Automate Compliment Cards
 Used to automatically convert compliment cards from our Google Form
-spreadsheet data to printable fancy Compliment Cards using a Google Slides
-template.
+spreadsheet data to printable fancy compliment cards using a Google Slides
+template. The original spreadsheet data and slides template are not altered.
 
 ### Usage
 1. Create a Google Slide to be used as the template.
     1. Create at least one layout in `View > Theme Builder`
         1. Insert Placeholders via `Insert > Placeholder`
-        1. Title placeholders are used for `From:`
-        1. Subtitle placeholders are used for `To:`
-        1. Body placeholders are used for `Message`
+            1. Title placeholders are used for `From:`
+            1. Subtitle placeholders are used for `To:`
+            1. Body placeholders are used for `Message`
 1. Edit `automate_compliment_cards.gs`
     1. Replace `<SPREADSHEET FILE ID>` and `<TEMPLATE SLIDES FILE ID>` with the file ids respectively.
     1. Update `SHEET_NAME` and `DATA_SPREADSHEET_COLUMNS` as appropriate.
     1. Run `GET_LAYOUTS()` function and update the `LAYOUTS` array appropriately.
     1. Grant authorization to the script when prompted.
     1. Run `GENERATE()` function.
-1. The generated Google Slides is in your Google Drive root folder.
+1. The generated Google Slides compliment card is outputted to your Google Drive root folder.
