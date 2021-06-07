@@ -4,7 +4,8 @@ compliment cards Google Slides for OSA's Class of 2020.
 
 ## Generate Banquet Slideshow
 Used to generate the banquet Google Slides slideshow for the Class of 2020
-from our Google Form spreadsheet data using a Google Slides template.
+from our Google Form spreadsheet data using a Google Slides template
+([example](https://docs.google.com/presentation/d/16HOWGPYZFYpPTdqZ4XgxQj2whuuBOgmFoxlrsPKiSCc/edit?usp=sharing)).
 The original spreadsheet data and slides template are not altered.
 
 ### Usage
@@ -29,7 +30,8 @@ Drive root folder.
 ## Automate Compliment Cards
 Used to automatically convert compliment cards from our Google Form
 spreadsheet data to printable fancy compliment cards using a Google Slides
-template. The original spreadsheet data and slides template are not altered.
+template ([example](https://docs.google.com/presentation/d/1eL_3oQ9NoLa9SbAerPzg78ajEXAhakemjpB8ERcuzHg/edit?usp=sharing)).
+The original spreadsheet data and slides template are not altered.
 
 ### Usage
 1. Create a Google Slide to be used as the template.
